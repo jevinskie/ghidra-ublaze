@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<language_definitions>
+  <language processor="MicroBlaze"
+    endian="big"
+    size="32"
+    variant="default"
+    version="1.0"
+    slafile="microblaze_be.sla"
+    processorspec="microblaze.pspec"
+    id="MicroBlaze:BE:32:default">
+    <description>Xilinx MicroBlaze BE</description>
+    <compiler name="default" spec="microblaze.cspec" id="default"/>
+  </language>
+  <language processor="MicroBlaze"
+    endian="little"
+    size="32"
+    variant="default"
+    version="1.0"
+    slafile="microblaze_le.sla"
+    processorspec="microblaze.pspec"
+    id="MicroBlaze:LE:32:default">
+    <description>Xilinx MicroBlaze LE</description>
+    <compiler name="default" spec="microblaze.cspec" id="default"/>
+  </language>
+</language_definitions>
