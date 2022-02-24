@@ -18,6 +18,8 @@ define register offset=0x2000 size=4 [
 	RPVR0 RPVR1 RPVR2 RPVR3 RPVR4 RPVR5 RPVR6 RPVR7 RPVR8 RPVR9 RPVR10 RPVR11 RPVR12
 ];
 
+@define C "RMSR[29,1]"
+
 define pcodeop software_interrupt;
 define pcodeop csr_write;
 define pcodeop csr_read;
@@ -71,11 +73,24 @@ rb: f_rb is f_rb & f_rb=0 { export 0:4; }
 #
 
 :add rd, ra, rb is op=0b000'000 & rd & ra & rb {
+	C = carry(ra, rb);
 	rd = ra + rb;
 }
 
 :addc rd, ra, rb is op=0b000'010 & rd & ra & rb {
-	rd = ra + rb + cary;
+	local cfi:1 = carry(ra, rb);
+	local s:4 = ra + rb;
+	cfi = cfi || carry(s, C);
+	rd = s + C;
+	C = cfi;
+}
+
+:addk rd, ra, rb is op=0b000'110 & rd & ra & rb {
+	rd = ra + rb
+}
+
+:addkc rd, ra, rb is op=0b'000'100 & rd & ra & rb {
+	rd = ra + rb + C;
 }
 
 :nori rX, rY, imm16 is op=0x01 & rX & rY & imm16 {
