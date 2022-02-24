@@ -40,18 +40,18 @@ define token opfields(32)
 	simm = (16, 31) signed
 ;
 
-attach variables [ dreg sreg srega ] [
+attach variables [ f_rd f_ra f_rb ] [
 	r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14 r15 r16 r17 r18 r19 r20 r21 r22 r23 r24 r25
 	r26 r27 r28 r29 r30 r31
 ];
 
-Rel16: reloc is simm16 [ reloc=inst_start+4*simm16; ] {
-	export *:4 reloc;
-}
+#Rel16: reloc is simm16 [ reloc=inst_start+4*simm16; ] {
+#	export *:4 reloc;
+#}
 
-Rel26: reloc is simm26 [ reloc=inst_start+4*simm26; ] {
-	export *:4 reloc;
-}
+#Rel26: reloc is simm26 [ reloc=inst_start+4*simm26; ] {
+#	export *:4 reloc;
+#}
 
 # RelSelf: reloc is b31=0 [ reloc=inst_start; ] {
 # 	export *:4 reloc;
@@ -67,288 +67,302 @@ ra: f_ra is f_ra & f_ra=0 { export 0:4; }
 rb: f_rb is f_rb { export f_rb; }
 rb: f_rb is f_rb & f_rb=0 { export 0:4; }
 
+simm32: simm is simm { local s:4 = sext(simm:2); export s; }
+
 
 #
 # Instructions
 #
 
-:add rd, ra, rb is op=0b000'000 & tyaz=0 & rd & ra & rb {
-	C = carry(ra, rb);
+:add rd, ra, rb is op=0b000000 & tyaz=0 & rd & ra & rb {
+	rd = ra + rb;
+	$(C) = carry(ra, rb);
+}
+
+:addc rd, ra, rb is op=0b000010 & tyaz=0 & rd & ra & rb {
+	local cfw:4 = zext($(C));
+	local cfi:1 = carry(ra, rb);
+	local s:4 = ra + rb;
+	cfi = cfi || carry(s, cfw);
+	rd = s + cfw;
+	$(C) = cfi;
+}
+
+:addi rd, ra, simm is op=0b001000 & rd & ra & simm & simm32  {
+	rd = ra + simm32;
+	$(C) = carry(ra, simm32);
+}
+
+:addic rd, ra, simm is op=0b001010 & rd & ra & simm & simm32 {
+	local cfw:4 = zext($(C));
+	local cfi:1 = carry(ra, simm32);
+	local s:4 = ra + simm32;
+	cfi = cfi || carry(s, cfw);
+	rd = s + cfw;
+	$(C) = cfi;
+}
+
+:addik rd, ra, simm is op=0b001100 & rd & ra & simm & simm32 {
+	rd = ra + simm32;
+}
+
+:addk rd, ra, rb is op=0b000110 & tyaz=0 & rd & ra & rb {
 	rd = ra + rb;
 }
 
-:addc rd, ra, rb is op=0b000'010 & tyaz=0 & rd & ra & rb {
-	local cfi:1 = carry(ra, rb);
-	local s:4 = ra + rb;
-	cfi = cfi || carry(s, C);
-	rd = s + C;
-	C = cfi;
-}
-
-:addi rd, ra, imm is opc=0bxxx'xxx & rd & ra & rb {
-	
-}
-
-:addik rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
-	
-}
-
-:addk rd, ra, rb is op=0b000'110 & tyaz=0 & rd & ra & rb {
-	rd = ra + rb
-}
-
-:addkc rd, ra, rb is op=0b'000'100 & tyaz=0 & rd & ra & rb {
-	rd = ra + rb + C;
-}
-
-:and rd, ra, rb is opc=0bxxx'xxx & tyaz=0 & rd & ra & rb {
-	
-}
-
-:andi rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
-	
-}
-
-:beqi rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
-	
-}
-
-:beqid rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
-	
-}
-
-:bgei rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
-	
-}
-
-:bgeid rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
-	
-}
-
-:bgti rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
-	
-}
-
-:bgtid rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
-	
-}
-
-:blei rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
-	
-}
-
-:bleid rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
-	
-}
-
-:blti rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
-	
-}
-
-:bltid rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
-	
-}
-
-:bnei rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
-	
-}
-
-:bneid rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
-	
-}
-
-:bra rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
-	
-}
-
-:braid rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
-	
-}
-
-:brald rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
-	
-}
-
-:bri rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
-	
-}
-
-:brid rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
-	
-}
-
-:brki rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
-	
-}
-
-:brlid rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
-	
-}
-
-:bsll rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
-	
-}
-
-:bslli rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
-	
-}
-
-:bsra rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
-	
-}
-
-:bsrai rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
-	
-}
-
-:bsrl rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
-	
-}
-
-:bsrli rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
-	
-}
-
-:cmp rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
-	
-}
-
-:cmpu rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
-	
-}
-
-:idiv rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
-	
-}
-
-:idivu rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
-	
-}
-
-:imm rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
-	
-}
-
-:lbu rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
-	
-}
-
-:lbui rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
-	
-}
-
-:lhu rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
-	
-}
-
-:lhui rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
-	
-}
-
-:lw rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
-	
-}
-
-:lwi rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
-	
-}
-
-:mfs rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
-	
-}
-
-:mts rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
-	
-}
-
-:mul rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
-	
-}
-
-:muli rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
-	
-}
-
-:or rd, ra, rb is opc=0bxxx'xxx & tyaz=0 & rd & ra & rb {
-	
-}
-
-:ori rd, ra, imm is opc=0bxxx'xxx & rd & ra & imm {
-	
-}
-
-:r0, rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
-	
-}
-
-:rsub rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
-	
-}
-
-:rsubc rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
-	
-}
-
-:rsubi rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
-	
-}
-
-:rsubik rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
-	
-}
-
-:rsubk rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
-	
-}
-
-:rtsd rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
-	
-}
-
-:sb rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
-	
-}
-
-:sbi rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
-	
-}
-
-:section rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
-	
-}
-
-:sext16 rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
-	
-}
-
-:sext8 rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
-	
-}
-
-:shi rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
-	
-}
-
-:sra rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
-	
-}
-
-:srl rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
-	
-}
-
-:sw rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
-	
-}
-
-:swi rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
-	
-}
-
-:xor rd, ra, rb is opc=0bxxx'xxx & tyaz=0 & rd & ra & rb {
-	
-}
-
-:xori rd, ra, imm is opc=0bxxx'xxx & rd & ra & imm {
-	
-}
+:addkc rd, ra, rb is op=0b000100 & tyaz=0 & rd & ra & rb {
+	local cfw:4 = zext($(C));
+	rd = ra + rb + cfw;
+}
+
+#:and rd, ra, rb is op=0bxxxxxx & tyaz=0 & rd & ra & rb {
+#	
+#}
+#
+#:andi rd, ra, rb is op=0bxxxxxx & rd & ra & rb {
+#	
+#}
+#
+#:beqi rd, ra, rb is op=0bxxxxxx & rd & ra & rb {
+#	
+#}
+#
+#:beqid rd, ra, rb is op=0bxxxxxx & rd & ra & rb {
+#	
+#}
+#
+#:bgei rd, ra, rb is op=0bxxxxxx & rd & ra & rb {
+#	
+#}
+#
+#:bgeid rd, ra, rb is op=0bxxxxxx & rd & ra & rb {
+#	
+#}
+#
+#:bgti rd, ra, rb is op=0bxxxxxx & rd & ra & rb {
+#	
+#}
+#
+#:bgtid rd, ra, rb is op=0bxxxxxx & rd & ra & rb {
+#	
+#}
+#
+#:blei rd, ra, rb is op=0bxxxxxx & rd & ra & rb {
+#	
+#}
+#
+#:bleid rd, ra, rb is op=0bxxxxxx & rd & ra & rb {
+#	
+#}
+#
+#:blti rd, ra, rb is op=0bxxxxxx & rd & ra & rb {
+#	
+#}
+#
+#:bltid rd, ra, rb is op=0bxxxxxx & rd & ra & rb {
+#	
+#}
+#
+#:bnei rd, ra, rb is op=0bxxxxxx & rd & ra & rb {
+#	
+#}
+#
+#:bneid rd, ra, rb is op=0bxxxxxx & rd & ra & rb {
+#	
+#}
+#
+#:bra rd, ra, rb is op=0bxxxxxx & rd & ra & rb {
+#	
+#}
+#
+#:braid rd, ra, rb is op=0bxxxxxx & rd & ra & rb {
+#	
+#}
+#
+#:brald rd, ra, rb is op=0bxxxxxx & rd & ra & rb {
+#	
+#}
+#
+#:bri rd, ra, rb is op=0bxxxxxx & rd & ra & rb {
+#	
+#}
+#
+#:brid rd, ra, rb is op=0bxxxxxx & rd & ra & rb {
+#	
+#}
+#
+#:brki rd, ra, rb is op=0bxxxxxx & rd & ra & rb {
+#	
+#}
+#
+#:brlid rd, ra, rb is op=0bxxxxxx & rd & ra & rb {
+#	
+#}
+#
+#:bsll rd, ra, rb is op=0bxxxxxx & rd & ra & rb {
+#	
+#}
+#
+#:bslli rd, ra, rb is op=0bxxxxxx & rd & ra & rb {
+#	
+#}
+#
+#:bsra rd, ra, rb is op=0bxxxxxx & rd & ra & rb {
+#	
+#}
+#
+#:bsrai rd, ra, rb is op=0bxxxxxx & rd & ra & rb {
+#	
+#}
+#
+#:bsrl rd, ra, rb is op=0bxxxxxx & rd & ra & rb {
+#	
+#}
+#
+#:bsrli rd, ra, rb is op=0bxxxxxx & rd & ra & rb {
+#	
+#}
+#
+#:cmp rd, ra, rb is op=0bxxxxxx & rd & ra & rb {
+#	
+#}
+#
+#:cmpu rd, ra, rb is op=0bxxxxxx & rd & ra & rb {
+#	
+#}
+#
+#:idiv rd, ra, rb is op=0bxxxxxx & rd & ra & rb {
+#	
+#}
+#
+#:idivu rd, ra, rb is op=0bxxxxxx & rd & ra & rb {
+#	
+#}
+#
+#:imm rd, ra, rb is op=0bxxxxxx & rd & ra & rb {
+#	
+#}
+#
+#:lbu rd, ra, rb is op=0bxxxxxx & rd & ra & rb {
+#	
+#}
+#
+#:lbui rd, ra, rb is op=0bxxxxxx & rd & ra & rb {
+#	
+#}
+#
+#:lhu rd, ra, rb is op=0bxxxxxx & rd & ra & rb {
+#	
+#}
+#
+#:lhui rd, ra, rb is op=0bxxxxxx & rd & ra & rb {
+#	
+#}
+#
+#:lw rd, ra, rb is op=0bxxxxxx & rd & ra & rb {
+#	
+#}
+#
+#:lwi rd, ra, rb is op=0bxxxxxx & rd & ra & rb {
+#	
+#}
+#
+#:mfs rd, ra, rb is op=0bxxxxxx & rd & ra & rb {
+#	
+#}
+#
+#:mts rd, ra, rb is op=0bxxxxxx & rd & ra & rb {
+#	
+#}
+#
+#:mul rd, ra, rb is op=0bxxxxxx & rd & ra & rb {
+#	
+#}
+#
+#:muli rd, ra, rb is op=0bxxxxxx & rd & ra & rb {
+#	
+#}
+#
+#:or rd, ra, rb is op=0bxxxxxx & tyaz=0 & rd & ra & rb {
+#	
+#}
+#
+#:ori rd, ra, imm is op=0bxxxxxx & rd & ra & imm {
+#	
+#}
+#
+#:r0, rd, ra, rb is op=0bxxxxxx & rd & ra & rb {
+#	
+#}
+#
+#:rsub rd, ra, rb is op=0bxxxxxx & rd & ra & rb {
+#	
+#}
+#
+#:rsubc rd, ra, rb is op=0bxxxxxx & rd & ra & rb {
+#	
+#}
+#
+#:rsubi rd, ra, rb is op=0bxxxxxx & rd & ra & rb {
+#	
+#}
+#
+#:rsubik rd, ra, rb is op=0bxxxxxx & rd & ra & rb {
+#	
+#}
+#
+#:rsubk rd, ra, rb is op=0bxxxxxx & rd & ra & rb {
+#	
+#}
+#
+#:rtsd rd, ra, rb is op=0bxxxxxx & rd & ra & rb {
+#	
+#}
+#
+#:sb rd, ra, rb is op=0bxxxxxx & rd & ra & rb {
+#	
+#}
+#
+#:sbi rd, ra, rb is op=0bxxxxxx & rd & ra & rb {
+#	
+#}
+#
+#:section rd, ra, rb is op=0bxxxxxx & rd & ra & rb {
+#	
+#}
+#
+#:sext16 rd, ra, rb is op=0bxxxxxx & rd & ra & rb {
+#	
+#}
+#
+#:sext8 rd, ra, rb is op=0bxxxxxx & rd & ra & rb {
+#	
+#}
+#
+#:shi rd, ra, rb is op=0bxxxxxx & rd & ra & rb {
+#	
+#}
+#
+#:sra rd, ra, rb is op=0bxxxxxx & rd & ra & rb {
+#	
+#}
+#
+#:srl rd, ra, rb is op=0bxxxxxx & rd & ra & rb {
+#	
+#}
+#
+#:sw rd, ra, rb is op=0bxxxxxx & rd & ra & rb {
+#	
+#}
+#
+#:swi rd, ra, rb is op=0bxxxxxx & rd & ra & rb {
+#	
+#}
+#
+#:xor rd, ra, rb is op=0bxxxxxx & tyaz=0 & rd & ra & rb {
+#	
+#}
+#
+#:xori rd, ra, imm is op=0bxxxxxx & rd & ra & imm {
+#	
+#}
