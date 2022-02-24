@@ -85,6 +85,14 @@ rb: f_rb is f_rb & f_rb=0 { export 0:4; }
 	C = cfi;
 }
 
+:addi rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
+	
+}
+
+:addik rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
+	
+}
+
 :addk rd, ra, rb is op=0b000'110 & rd & ra & rb {
 	rd = ra + rb
 }
@@ -93,305 +101,258 @@ rb: f_rb is f_rb & f_rb=0 { export 0:4; }
 	rd = ra + rb + C;
 }
 
-:nori rX, rY, imm16 is op=0x01 & rX & rY & imm16 {
-	rX = ~(rY | imm16);
+:and rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
+	
 }
 
-:muli rX, rY, simm16 is op=0x02 & rX & rY & simm16 {
-	rX = ((rY * simm16) & 0xFFFFFFFF);
+:andi rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
+	
 }
 
-:sh (rX+simm16), rY is op=0x03 & rX & rY & simm16 {
-	local address = rX + simm16;
-	*[ram]:2 address = rY:2;
+:beqi rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
+	
 }
 
-:lb rX, (rY+simm16) is op=0x04 & rX & rY & simm16 {
-	local address = rY + simm16;
-	rX = sext(*[ram]:1 address);
+:beqid rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
+	
 }
 
-:sri rX, rY, imm5 is op=0x05 & rX & rY & imm5 {
-	rX = rY s>> imm5;
+:bgei rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
+	
 }
 
-:xori rX, rY, imm16 is op=0x06 & rX & rY & imm16 {
-	rX = rY ^ imm16;
+:bgeid rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
+	
 }
 
-:lh rX, (rY+simm16) is op=0x07 & rX & rY & simm16 {
-	local address = rY + simm16;
-	rX = sext(*[ram]:2 address);
+:bgti rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
+	
 }
 
-:andi rX, rY, imm16 is op=0x08 & rX & rY & imm16 {
-	rX = rY & imm16;
+:bgtid rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
+	
 }
 
-:xnori rX, rY, imm16 is op=0x09 & rX & rY & imm16 {
-	rX = ~(rY ^ imm16);
+:blei rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
+	
 }
 
-:lw rX, (rY+simm16) is op=0x0A & rX & rY & simm16 {
-	local address = rY + simm16;
-	rX = *[ram]:4 address;
+:bleid rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
+	
 }
 
-:lhu rX, (rY+simm16) is op=0x0B & rX & rY & simm16 {
-	local address = rY + simm16;
-	rX = zext(*[ram]:2 address);
+:blti rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
+	
 }
 
-:sb (rX+simm16), rY is op=0x0c & rX & rY & simm16 {
-	local address = rX + simm16;
-	*[ram]:1 address = rY:1;
+:bltid rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
+	
 }
 
-# :addi rX, rY, simm16 is op=0x0D & rX & rY & simm16 {
-# # 	rX = rY + simm16;
-# # }
-
-# :addi rX, rY, simm16 is op=0x0D & rX & rY & simm16 {
-# # 	rX = rY + simm16;
-# # }
-
-:addi rX, rY, simm16 is op=0x0D & rX & rY & simm16 {
-	rX = rY + simm16;
-}
-
-:mvi rX, simm16 is op=0x0D & rX & rY & simm16 & reg0=0 {
-	rX = sext(simm16:2);
-}
-
-:nop is op=0x0D & rX & rY & reg0=0 & reg1=0 & simm16=0 {
-}
-
-:ori rX, rY, imm16 is op=0x0E & rX & rY & imm16 {
-	rX = rY | imm16;
+:bnei rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
+	
 }
 
-:sli rX, rY, imm5 is op=0x0F & rX & rY & imm5 {
-	rX = rY << imm5;
+:bneid rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
+	
 }
 
-:lbu rX, (rY+simm16) is op=0x10 & rX & rY & simm16 {
-	local address = rY + simm16;
-	rX = zext(*[ram]:1 address);
+:bra rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
+	
 }
 
-:be rY, rX Rel16 is op=0x11 & rX & rY & Rel16 {
-	if (rY == rX) goto Rel16;
+:braid rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
+	
 }
 
-:bg rY, rX Rel16 is op=0x12 & rX & rY & Rel16 {
-	if (rY s> rX) goto Rel16;
+:brald rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
+	
 }
 
-:bge rY, rX Rel16 is op=0x13 & rX & rY & Rel16 {
-	if (rY s>= rX) goto Rel16;
+:bri rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
+	
 }
 
-:bgeu rY, rX Rel16 is op=0x14 & rX & rY & Rel16 {
-	if (rY >= rX) goto Rel16;
+:brid rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
+	
 }
 
-:bgu rY, rX Rel16 is op=0x15 & rX & rY & Rel16 {
-	if (rY > rX) goto Rel16;
+:brki rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
+	
 }
 
-:sw (rX+simm16), rY is op=0x16 & rX & rY & simm16 {
-	local address = rX + simm16;
-	*[ram]:4 address = rY;
+:brlid rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
+	
 }
 
-:bne rY, rX Rel16 is op=0x17 & rX & rY & Rel16 {
-	if (rY != rX) goto Rel16;
+:bsll rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
+	
 }
 
-:andhi rX, rY, imm16 is op=0x18 & rX & rY & imm16 {
-	rX = rY & (imm16 << 16);
+:bslli rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
+	
 }
-
 
-:cmpei rX, rY, simm16 is op=0x19 & rX & rY & simm16 {
-	rX = zext(rY:4 == sext(simm16:2));
+:bsra rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
+	
 }
 
-:cmpgi rX, rY, simm16 is op=0x1A & rX & rY & simm16 {
-	rX = zext(rY:4 s> sext(simm16:2));
+:bsrai rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
+	
 }
 
-:cmpgei rX, rY, simm16 is op=0x1B & rX & rY & simm16 {
-	rX = zext(rY:4 s>= sext(simm16:2));
+:bsrl rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
+	
 }
 
-:cmpgeui rX, rY, imm16 is op=0x1C & rX & rY & imm16 {
-	rX = zext(rY:4 >= zext(imm16:2));
+:bsrli rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
+	
 }
 
-:cmpgui rX, rY, imm16 is op=0x1D & rX & rY & imm16 {
-	rX = zext(rY:4 > zext(imm16:2));
+:cmp rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
+	
 }
 
-:orhi rX, rY, imm16 is op=0x1E & rX & rY & imm16 {
-	rX = rY | (imm16 << 16);
+:cmpu rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
+	
 }
 
-:mvhi rX, imm16 is op=0x1E & rX & rY & imm16 & reg0=0 {
-	rX = imm16 << 16;
+:format rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
+	
 }
 
-:cmpnei rX, rY, simm16 is op=0x1F & rX & rY & simm16 {
-	rX = zext(rY:4 != sext(simm16:2));
+:idiv rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
+	
 }
 
-:sru rX, rY, rZ is op=0x20 & rX & rY & rZ {
-	rX = rY >> rZ;
+:idivu rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
+	
 }
 
-:nor rX, rY, rZ is op=0x21 & rX & rY & rZ {
-	rX = ~(rY | rZ);
+:imm rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
+	
 }
 
-:mul rX, rY, rZ is op=0x22 & rX & rY & rZ {
-	rX = (rY * rZ) & 0xFFFFFFFF;
+:lbu rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
+	
 }
 
-:divu rX, rY, rZ is op=0x23 & rX & rY & rZ {
-	rX = rY / rZ;
+:lbui rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
+	
 }
 
-:rcsr reg2, csr is op=0x24 & csr & reg2 {
-	local tmp_csr:4 = csr;
-	reg2 = csr_read(tmp_csr);
+:lhu rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
+	
 }
 
-:sr rX, rY, rZ is op=0x25 & rX & rY & rZ {
-	rX = rY s>> rZ;
+:lhui rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
+	
 }
 
-:xor rX, rY, rZ is op=0x26 & rX & rY & rZ {
-	rX = rY ^ rZ;
+:lw rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
+	
 }
 
-:div rX, rY, rZ is op=0x27 & rX & rY & rZ {
-	rX = rY s/ rZ;
+:lwi rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
+	
 }
 
-:and rX, rY, rZ is op=0x28 & rX & rY & rZ {
-	rX = rY & rZ;
+:mfs rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
+	
 }
 
-:xnor rX, rY, rZ is op=0x29 & rX & rY & rZ {
-	rX = ~(rY ^ rZ);
+:mts rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
+	
 }
 
-:not rX, rY is op=0x29 & rX & rY & rZ & reg1=0 {
-	rX = ~rY;
+:mul rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
+	
 }
-
-# 0x2A is reserved
-
-:raise imm26 is op=0x2B & imm26 {
 
-	local tmp:4 = imm26;
-	software_interrupt(tmp);
-
+:muli rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
+	
 }
 
-:sextb rX, rY is op=0x2C & rX & rY {
-	rX = (rY << 24) s>> 24;
+:or rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
+	
 }
-
-# :add rX, rY, rZ is op=0x2D & rX & rY & rZ {
-# # 	rX = rY + rZ;
-# # }
 
-# :add rX, rY, rZ is op=0x2D & rX & rY & rZ {
-# # 	rX = rY + rZ;
-# # }
-
-:add rX, rY, rZ is op=0x2D & rX & rY & rZ {
-	rX = rY + rZ;
+:ori rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
+	
 }
 
-:or rX, rY, rZ is op=0x2E & rX & rY & rZ {
-	rX = rY | rZ;
+:r0, rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
+	
 }
 
-:mov rX, rY is op=0x2E & rX & rY & rZ & reg1=0 {
-	rX = rY;
+:rsub rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
+	
 }
 
-:sl rX, rY, rZ is op=0x2F & rX & rY & rZ {
-	rX = rY << rZ;
+:rsubc rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
+	
 }
 
-:b rX is op=0x30 & rX {
-	goto [rX];
+:rsubi rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
+	
 }
 
-:ret is op=0x30 & reg0=29 {
-	return [ra];
+:rsubik rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
+	
 }
 
-:modu rX, rY, rZ is op=0x31 & rX & rY & rZ {
-	rX = rY % rZ;
+:rsubk rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
+	
 }
 
-:sub rX, rY, rZ is op=0x32 & rX & rY & rZ {
-	rX = rY - rZ;
+:rtsd rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
+	
 }
-
-# 0x33 is reserved
 
-:wcsr csr, reg1 is op=0x34 & reg1 & csr {
-	local tmp_csr:4 = csr;
-	csr_write(tmp_csr, reg1);
+:sb rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
+	
 }
 
-:mod rX, rY, rZ is op=0x35 & rX & rY & rZ {
-	rX = rY s% rZ;
+:sbi rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
+	
 }
 
-:call rX is op=0x36 & rX {
-	ra = inst_start + 4;
-	call [rX];
+:section rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
+	
 }
 
-:sexth rX, rY is op=0x37 & rX & rY {
-	rX = (rY << 16) s>> 16;
+:sext16 rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
+	
 }
 
-:bi Rel26 is op=0x38 & Rel26 {
-	goto Rel26;
+:sext8 rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
+	
 }
 
-:cmpe rX, rY, rZ is op=0x39 & rX & rY & rZ {
-	rX = zext(rY == rZ);
+:shi rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
+	
 }
 
-:cmpg rX, rY, rZ is op=0x3A & rX & rY & rZ {
-	rX = zext(rY s> rZ);
+:sra rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
+	
 }
 
-:cmpge rX, rY, rZ is op=0x3B & rX & rY & rZ {
-	rX = zext(rY s>= rZ);
+:srl rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
+	
 }
 
-:cmpgeu rX, rY, rZ is op=0x3C & rX & rY & rZ {
-	rX = zext(rY >= rZ);
+:sw rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
+	
 }
 
-:cmpgu rX, rY, rZ is op=0x3D & rX & rY & rZ {
-	rX = zext(rY > rZ);
+:swi rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
+	
 }
 
-:calli Rel26 is op=0x3E & Rel26 {
-	ra = inst_start + 4;
-	call Rel26;
+:xor rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
+	
 }
 
-:cmpne rX, rY, rZ is op=0x3F & rX & rY & rZ {
-	rX = zext(rY != rZ);
+:xori rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
+	
 }
