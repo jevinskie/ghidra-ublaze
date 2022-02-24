@@ -35,9 +35,9 @@ define token opfields(32)
 	f_rd = (6, 10)
 	f_ra = (11, 15)
 	f_rb = (16, 20)
-	typea_zeros = (21, 31)
-	imm16 = (16, 31)
-	simm16 = (16, 31) signed
+	tyaz = (21, 31)
+	imm = (16, 31)
+	simm = (16, 31) signed
 ;
 
 attach variables [ dreg sreg srega ] [
@@ -72,12 +72,12 @@ rb: f_rb is f_rb & f_rb=0 { export 0:4; }
 # Instructions
 #
 
-:add rd, ra, rb is op=0b000'000 & rd & ra & rb {
+:add rd, ra, rb is op=0b000'000 & tyaz=0 & rd & ra & rb {
 	C = carry(ra, rb);
 	rd = ra + rb;
 }
 
-:addc rd, ra, rb is op=0b000'010 & rd & ra & rb {
+:addc rd, ra, rb is op=0b000'010 & tyaz=0 & rd & ra & rb {
 	local cfi:1 = carry(ra, rb);
 	local s:4 = ra + rb;
 	cfi = cfi || carry(s, C);
@@ -85,7 +85,7 @@ rb: f_rb is f_rb & f_rb=0 { export 0:4; }
 	C = cfi;
 }
 
-:addi rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
+:addi rd, ra, imm is opc=0bxxx'xxx & rd & ra & rb {
 	
 }
 
@@ -93,15 +93,15 @@ rb: f_rb is f_rb & f_rb=0 { export 0:4; }
 	
 }
 
-:addk rd, ra, rb is op=0b000'110 & rd & ra & rb {
+:addk rd, ra, rb is op=0b000'110 & tyaz=0 & rd & ra & rb {
 	rd = ra + rb
 }
 
-:addkc rd, ra, rb is op=0b'000'100 & rd & ra & rb {
+:addkc rd, ra, rb is op=0b'000'100 & tyaz=0 & rd & ra & rb {
 	rd = ra + rb + C;
 }
 
-:and rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
+:and rd, ra, rb is opc=0bxxx'xxx & tyaz=0 & rd & ra & rb {
 	
 }
 
@@ -217,10 +217,6 @@ rb: f_rb is f_rb & f_rb=0 { export 0:4; }
 	
 }
 
-:format rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
-	
-}
-
 :idiv rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
 	
 }
@@ -273,11 +269,11 @@ rb: f_rb is f_rb & f_rb=0 { export 0:4; }
 	
 }
 
-:or rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
+:or rd, ra, rb is opc=0bxxx'xxx & tyaz=0 & rd & ra & rb {
 	
 }
 
-:ori rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
+:ori rd, ra, imm is opc=0bxxx'xxx & rd & ra & imm {
 	
 }
 
@@ -349,10 +345,10 @@ rb: f_rb is f_rb & f_rb=0 { export 0:4; }
 	
 }
 
-:xor rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
+:xor rd, ra, rb is opc=0bxxx'xxx & tyaz=0 & rd & ra & rb {
 	
 }
 
-:xori rd, ra, rb is opc=0bxxx'xxx & rd & ra & rb {
+:xori rd, ra, imm is opc=0bxxx'xxx & rd & ra & imm {
 	
 }
