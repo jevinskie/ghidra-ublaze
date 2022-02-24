@@ -9,23 +9,14 @@ define space register type=register_space size=4;
 # General Purpose Registers
 define register offset=0x1000 size=4 [
 	r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14 r15 r16 r17 r18 r19 r20 r21 r22 r23 r24 r25
-	gp fp sp ra ea ba
+	r26 r27 r28 r29 r30 r31
 ];
 
 # Control and Status Registers
 define register offset=0x2000 size=4 [
-	PC IE IM IP ICC DCC CC CFG EBA CFG2
+	RPC RMSR REAR RESR RFSR RBTR REDR RPID RZPR RTLBLO RTLBHI RTLBX RTLBSX
+	RPVR0 RPVR1 RPVR2 RPVR3 RPVR4 RPVR5 RPVR6 RPVR7 RPVR8 RPVR9 RPVR10 RPVR11 RPVR12
 ];
-
-# Debug Control and Status Registers
-define register offset=0x3000 size=4 [
-	DC DEBA JTX JRX BP0 BP1 BP2 BP3 WP0 WP1 WP2 WP3
-];
-
-define register offset=0x4000 size=4 contextreg;
-define context contextreg
-	LRset = (1,1) noflow  # 1 if the instruction before was a mov lr,pc
-;
 
 define pcodeop software_interrupt;
 define pcodeop csr_write;
@@ -36,26 +27,20 @@ define pcodeop csr_read;
 #
 
 define token opfields(32)
-	b31 = (31, 31)
-	op = (26, 31)
-	op5 = (26, 30)
-	reg0 = (21, 25)
-	csr = (21, 25)
-	reg1 = (16, 20)
-	reg2 = (11, 15)
-	imm16 = (0, 15)
-	simm16 = (0, 15) signed
-	imm26 = (0, 25)
-	simm26 = (0, 25) signed
-	imm5 = (0, 4)
-	simm5 = (0, 4) signed
-	z11 = (0, 10)
-	z16 = (0, 16)
+	op = (0, 5)
+	k = (3, 3)
+	c = (4, 4)
+	f_rd = (6, 10)
+	f_ra = (11, 15)
+	f_rb = (16, 20)
+	typea_zeros = (21, 31)
+	imm16 = (16, 31)
+	simm16 = (16, 31) signed
 ;
 
-attach variables [ reg0 reg1 reg2 ] [
+attach variables [ dreg sreg srega ] [
 	r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14 r15 r16 r17 r18 r19 r20 r21 r22 r23 r24 r25
-	gp fp sp ra ea ba
+	r26 r27 r28 r29 r30 r31
 ];
 
 Rel16: reloc is simm16 [ reloc=inst_start+4*simm16; ] {
@@ -70,77 +55,27 @@ Rel26: reloc is simm26 [ reloc=inst_start+4*simm26; ] {
 # 	export *:4 reloc;
 # }
 
-inst_fmt_ri: is_inst_fmt_ri is b31=0 [ is_inst_fmt_ri=1; ] { export *:1 is_inst_fmt_ri; }
-inst_fmt_i: is_inst_fmt_i is b31=1 & (op5=0x18 | op5=0x1e) [ is_inst_fmt_i=1; ] { export *:1 is_inst_fmt_i; }
-inst_fmt_cr: is_inst_fmt_cr is b31=1 & (op5=0x04 | op5=0x14) [ is_inst_fmt_cr=1; ] { export *:1 is_inst_fmt_cr; }
-inst_fmt_rr: is_inst_fmt_rr is b31=1 & (op5!=0x18 & op5!=0x1e & op5!=0x04 & op5!=0x14) [ is_inst_fmt_rr = 1; ] { export *:1 is_inst_fmt_rr; }
 
-# inst_fmt_ri: is_inst_fmt_ri is b31=1 [ is_inst_fmt_ri=0; ] { export *:1 is_inst_fmt_ri; }
-# inst_fmt_ri: is_inst_fmt_ri is b31=0 [ is_inst_fmt_ri=1; ] { export *:1 is_inst_fmt_ri; }
-# inst_fmt_ri: "ri1" is b31=0 { export 1:1; }
-# inst_fmt_i: { export 0:1; }
-# inst_fmt_i: is b31=1 & (op5=0x18 | op5=0x1e) { export 1:1; }
-# inst_fmt_cr: { export 0:1; }
-# inst_fmt_cr: is b31=1 & (op5=0x04 | op5=0x14) { export 1:1; }
-# inst_fmt_rr: { export zext(inst_fmt_ri | inst_fmt_i | inst_fmt_cr) == 0):1; }
+rd: f_rd is f_rd { export f_rd; }
+rd: f_rd is f_rd & f_rd=0 { export 0:4; }
 
+ra: f_ra is f_ra { export f_ra; }
+ra: f_ra is f_ra & f_ra=0 { export 0:4; }
 
+rb: f_rb is f_rb { export f_rb; }
+rb: f_rb is f_rb & f_rb=0 { export 0:4; }
 
-gpr0: reg0 is reg0 { export reg0; }
-gpr0: "0" is reg0=0 { export 0:4; } # Special case
-
-gpr1: reg1 is reg1 { export reg1; }
-gpr1: "0" is reg1=0 { export 0:4; } # Special case
-
-gpr2: reg2 is reg2 { export reg2; }
-gpr2: "0" is reg2=0 { export 0:4; } # Special case
-
-# inst_fmt_ri: "ri0" is inst_fmt_ri { export 0:1; }
-# inst_fmt_ri: "ri1" is b31=0 { export 1:1; }
-# inst_fmt_i: { export 0:1; }
-# inst_fmt_i: is b31=1 & (op5=0x18 | op5=0x1e) { export 1:1; }
-# inst_fmt_cr: { export 0:1; }
-# inst_fmt_cr: is b31=1 & (op5=0x04 | op5=0x14) { export 1:1; }
-# inst_fmt_rr: { export zext(inst_fmt_ri | inst_fmt_i | inst_fmt_cr) == 0):1; }
-
-# rX: reg2 is reg2 & inst_fmt_rr { export reg2; }
-# rY: reg0 is reg0 & inst_fmt_rr { export reg0; }
-# rZ: reg1 is reg1 & inst_fmt_rr { export reg1; }
-
-# rX: reg1 is reg1 & inst_fmt_ri { export reg1; }
-# rY: reg0 is reg0 & inst_fmt_ri { export reg0; }
-
-# rX: reg2 is reg1 & inst_fmt_cr { export reg2; }
-
-rX: reg2 is reg2 & inst_fmt_rr & op!=0x30 & op!=0x36 { export reg2; }
-rX: "0" is reg2=0 & inst_fmt_rr & op!=0x30 & op!=0x36 { export 0:4; }
-rX: reg0 is reg0 & inst_fmt_rr & (op=0x30 | op=0x36) { export reg0; } # b rX
-rX: "0" is reg0=0 & inst_fmt_rr & (op=0x30 | op=0x36) { export 0:4; } # b rX where rX = r0
-rY: reg0 is reg0 & inst_fmt_rr { export reg0; }
-rY: "0" is reg0=0 & inst_fmt_rr { export 0:4; }
-rZ: reg1 is reg1 & inst_fmt_rr { export reg1; }
-rZ: "0" is reg1=0 & inst_fmt_rr { export 0:4; }
-
-rX: reg1 is reg1 & inst_fmt_ri & op!=0x03 & op!=0x0C & op!=0x16 { export reg1; }
-rX: "0" is reg1=0 & inst_fmt_ri & op!=0x03 & op!=0x0C & op!=0x16 { export 0:4; }
-rY: reg0 is reg0 & inst_fmt_ri & op!=0x03 & op!=0x0C & op!=0x16 { export reg0; }
-rY: "0" is reg0=0 & inst_fmt_ri & op!=0x03 & op!=0x0C & op!=0x16 { export 0:4; }
-
-# store inst
-rX: reg0 is reg0 & inst_fmt_ri & (op=0x03 | op=0x0C | op=0x16) { export reg0; }
-rX: "0" is reg0=0 & inst_fmt_ri & (op=0x03 | op=0x0C | op=0x16) { export 0:4; }
-rY: reg1 is reg1 & inst_fmt_ri & (op=0x03 | op=0x0C | op=0x16) { export reg1; }
-rY: "0" is reg1=0 & inst_fmt_ri & (op=0x03 | op=0x0C | op=0x16) { export 0:4; }
-
-rX: reg2 is reg2 & inst_fmt_cr { export reg2; }
-rX: "0" is reg2=0 & inst_fmt_cr { export 0:4; }
 
 #
 # Instructions
 #
 
-:srui rX, rY, imm5 is op=0x00 & rX & rY & imm5 {
-	rX = rY >> imm5;
+:add rd, ra, rb is op=0b000'000 & rd & ra & rb {
+	rd = ra + rb;
+}
+
+:addc rd, ra, rb is op=0b000'010 & rd & ra & rb {
+	rd = ra + rb + cary;
 }
 
 :nori rX, rY, imm16 is op=0x01 & rX & rY & imm16 {

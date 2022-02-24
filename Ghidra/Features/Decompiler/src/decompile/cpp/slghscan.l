@@ -458,14 +458,20 @@ int4 scan_number(char *numtext,YYSTYPE *lval,bool signednum)
     val = 0;
     numtext += 2;
     while ((*numtext) != 0) {
-      val <<= 1;
-      if (*numtext == '1') {
-        val |= 1;
+      if (*numtext == '\'') {
+        // skip tick, NOP
+      } else {
+        val <<= 1;
+        if (*numtext == '1') {
+          val |= 1;
+        }
       }
       ++numtext;
     }
   } else {
-    istringstream s(numtext);
+    string stripped_numtext(numtext);
+    stripped_numtext.erase(std::remove(stripped_numtext.begin(), stripped_numtext.end(), '\''), stripped_numtext.end());
+    istringstream s(stripped_numtext);
     s.unsetf(ios::dec | ios::hex | ios::oct);
     s >> val;
     if (!s)
@@ -542,9 +548,9 @@ with   { BEGIN(pattern); withsection = 1; slgh->calcContextLayout(); return WITH
 <defblock>pcodeop   { return PCODEOP_KEY; }
 <defblock>#.*
 <defblock>[a-zA-Z_.][a-zA-Z0-9_.]* {  return find_symbol();  }
-<defblock>[0-9]|[1-9][0-9]+	{ return scan_number(yytext,&yylval,false); }
-<defblock>0x[0-9a-fA-F]+	{ return scan_number(yytext,&yylval,false); }
-<defblock>0b[01]+		{ return scan_number(yytext,&yylval,false); }
+<defblock>[0-9]|[1-9][0-9']+	{ return scan_number(yytext,&yylval,false); }
+<defblock>0x[0-9a-fA-F']+	{ return scan_number(yytext,&yylval,false); }
+<defblock>0b[01']+		{ return scan_number(yytext,&yylval,false); }
 <defblock>\"([^\"[:cntrl:]]|\"\")*\"	{ yylval.str = new string(yytext+1,strlen(yytext)-2); return STRING; }
 <defblock>[\r\ \t\v]+
 <defblock>\n        { slgh->nextLine(); }
@@ -584,9 +590,9 @@ with   { BEGIN(pattern); withsection = 1; slgh->calcContextLayout(); return WITH
 <pattern>[=(),:;+\-*/~<>]   { yylval.ch = yytext[0]; return yytext[0]; }
 <pattern>#.*
 <pattern>[a-zA-Z_.][a-zA-Z0-9_.]*   { return find_symbol();   }
-<pattern>[0-9]|[1-9][0-9]+ { return scan_number(yytext,&yylval,true); }
-<pattern>0x[0-9a-fA-F]+  { return scan_number(yytext,&yylval,true); }
-<pattern>0b[01]+         { return scan_number(yytext,&yylval,true); }
+<pattern>[0-9]|[1-9][0-9']+ { return scan_number(yytext,&yylval,true); }
+<pattern>0x[0-9a-fA-F']+  { return scan_number(yytext,&yylval,true); }
+<pattern>0b[01']+         { return scan_number(yytext,&yylval,true); }
 <pattern>[\r\ \t\v]+
 <pattern>\n        { slgh->nextLine(); }
 <pattern>.         { return yytext[0]; }
@@ -650,9 +656,9 @@ with   { BEGIN(pattern); withsection = 1; slgh->calcContextLayout(); return WITH
 <sem>[=(),:\[\];!&|^+\-*/%~<>]   { yylval.ch = yytext[0]; return yytext[0]; }
 <sem>#.*
 <sem>[a-zA-Z_.][a-zA-Z0-9_.]*   { return find_symbol();   }
-<sem>[0-9]|[1-9][0-9]+ { return scan_number(yytext,&yylval,false); }
-<sem>0x[0-9a-fA-F]+  { return scan_number(yytext,&yylval,false); }
-<sem>0b[01]+         { return scan_number(yytext,&yylval,false); }
+<sem>[0-9]|[1-9][0-9']+ { return scan_number(yytext,&yylval,false); }
+<sem>0x[0-9a-fA-F']+  { return scan_number(yytext,&yylval,false); }
+<sem>0b[01']+         { return scan_number(yytext,&yylval,false); }
 <sem>[\r\ \t\v]+
 <sem>\n         { slgh->nextLine(); }
 <sem>.          { return yytext[0]; }
