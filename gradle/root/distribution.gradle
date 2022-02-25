@@ -215,13 +215,13 @@ task zipJavadocs(type: Zip) {
 	archiveFileName = 'GhidraAPI_javadoc.zip'	
 	destinationDirectory = file(rootProject.projectDir.toString() + "/build/tmp")
 
-	from createJavadocs {
-		into "api"
-	}
+	// from createJavadocs {
+	// 	into "api"
+	// }
 	
-	from createJsondocs {
-		into "api"
-	}
+	// from createJsondocs {
+	// 	into "api"
+	// }
 	
 	description "Zips javadocs for Ghidra api.  [gradle/root/distribution.gradle]"
 }

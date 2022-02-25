@@ -1,4 +1,4 @@
-# sleigh specification file for LM32
+# sleigh specification file for MicroBlaze
 
 define endian=$(ENDIAN);
 define alignment=4;
@@ -28,16 +28,26 @@ define pcodeop csr_read;
 # Tokens
 #
 
+#define token opfields(32)
+#	op = (0, 5)
+#	k = (3, 3)
+#	c = (4, 4)
+#	f_rd = (6, 10)
+#	f_ra = (11, 15)
+#	f_rb = (16, 20)
+#	tyaz = (21, 31)
+#	imm = (16, 31)
+#	simm = (16, 31) signed
+#;
+
 define token opfields(32)
-	op = (0, 5)
-	k = (3, 3)
-	c = (4, 4)
-	f_rd = (6, 10)
-	f_ra = (11, 15)
-	f_rb = (16, 20)
-	tyaz = (21, 31)
-	imm = (16, 31)
-	simm = (16, 31) signed
+	op = (26, 31)
+	f_rd = (21, 25)
+	f_ra = (16, 20)
+	f_rb = (11, 15)
+	tyaz = (0, 11)
+	imm = (0, 15)
+	simm = (0, 15) signed
 ;
 
 attach variables [ f_rd f_ra f_rb ] [

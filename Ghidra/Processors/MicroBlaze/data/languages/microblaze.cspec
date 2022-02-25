@@ -34,9 +34,9 @@
         <pentry minsize="1" maxsize="4">
           <register name="r3"/>
         </pentry>
-        <pentry minsize="1" maxsize="4">
+        <!--<pentry minsize="1" maxsize="4">
           <register name="r4"/>
-        </pentry>
+        </pentry>-->
       </output>
       <unaffected>
         <register name="r19"/>
@@ -55,5 +55,4 @@
       </unaffected>
     </prototype>
   </default_proto>
-    
 </compiler_spec>
